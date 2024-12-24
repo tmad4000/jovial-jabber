@@ -10,21 +10,51 @@ interface Message {
   timestamp: Date;
 }
 
+interface Conversation {
+  [userId: string]: Message[];
+}
+
 const Index = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content: "Hello! How are you?",
-      sender: "other",
-      timestamp: new Date(Date.now() - 60000),
-    },
-    {
-      id: "2",
-      content: "I'm doing great, thanks for asking!",
-      sender: "user",
-      timestamp: new Date(),
-    },
-  ]);
+  const [conversations, setConversations] = useState<Conversation>({
+    "1": [
+      {
+        id: "1",
+        content: "Hello! How are you?",
+        sender: "other",
+        timestamp: new Date(Date.now() - 60000),
+      },
+      {
+        id: "2",
+        content: "I'm doing great, thanks for asking!",
+        sender: "user",
+        timestamp: new Date(),
+      },
+    ],
+    "2": [
+      {
+        id: "1",
+        content: "Hey there!",
+        sender: "other",
+        timestamp: new Date(Date.now() - 120000),
+      },
+    ],
+    "3": [
+      {
+        id: "1",
+        content: "Good morning!",
+        sender: "other",
+        timestamp: new Date(Date.now() - 180000),
+      },
+    ],
+    "4": [
+      {
+        id: "1",
+        content: "Hi! Nice to meet you!",
+        sender: "other",
+        timestamp: new Date(Date.now() - 240000),
+      },
+    ],
+  });
   const [newMessage, setNewMessage] = useState("");
   const [selectedUserId, setSelectedUserId] = useState("1");
 
@@ -39,7 +69,10 @@ const Index = () => {
       timestamp: new Date(),
     };
 
-    setMessages([...messages, message]);
+    setConversations((prev) => ({
+      ...prev,
+      [selectedUserId]: [...(prev[selectedUserId] || []), message],
+    }));
     setNewMessage("");
 
     // Simulate received message
@@ -50,9 +83,14 @@ const Index = () => {
         sender: "other",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, response]);
+      setConversations((prev) => ({
+        ...prev,
+        [selectedUserId]: [...(prev[selectedUserId] || []), response],
+      }));
     }, 1000);
   };
+
+  const currentMessages = conversations[selectedUserId] || [];
 
   return (
     <SidebarProvider>
@@ -60,7 +98,7 @@ const Index = () => {
         <UserPanel onSelectUser={setSelectedUserId} selectedUserId={selectedUserId} />
         <div className="flex flex-1 flex-col">
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((message) => (
+            {currentMessages.map((message) => (
               <div
                 key={message.id}
                 className={cn(
