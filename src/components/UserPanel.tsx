@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 interface UserPanelProps {
   onSelectUser: (userId: string) => void;
@@ -24,19 +25,27 @@ const users = [
 ];
 
 export function UserPanel({ onSelectUser, selectedUserId }: UserPanelProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-border p-4">
         <Input
           placeholder="Search users..."
           className="h-8"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <SidebarMenuItem key={user.id}>
                   <SidebarMenuButton
                     onClick={() => onSelectUser(user.id)}
